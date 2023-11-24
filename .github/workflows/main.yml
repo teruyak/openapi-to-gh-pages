@@ -1,0 +1,29 @@
+name: Simple Usage
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: generate html
+        run: |
+          mkdir -p docs/
+          npx @redocly/cli build-docs petstore.yaml -o docs/petstore.html
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/deploy-pages@v1
+        id: deployment
